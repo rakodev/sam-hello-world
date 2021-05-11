@@ -6,5 +6,6 @@ stack_name = "sam-hello-world"
 s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-16d9y167szkhv"
 s3_prefix = "sam-hello-world"
 region = "eu-west-1"
-confirm_changeset = true
+#confirm_changeset = true
+confirm_changeset = false
 capabilities = "CAPABILITY_IAM"

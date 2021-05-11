@@ -1,6 +1,5 @@
 import json
 import time
-import math
 
 # import requests
 
@@ -52,10 +51,8 @@ def lambda_context(event, context):
     lambda_request_id = context.aws_request_id
     lambda_memory_limits = context.memory_limit_in_mb
     lambda_remaining_time_in_ms = context.get_remaining_time_in_millis()
-    lambda_remaining_time_in_sec = math.floor(
-        lambda_remaining_time_in_ms / 1000)
-    lambda_remaining_time_in_min = math.floor(
-        lambda_remaining_time_in_sec / 60)
+    lambda_remaining_time_in_sec = round(
+        (lambda_remaining_time_in_ms / 1000), 2)
 
     return {
         "statusCode": 200,
@@ -66,7 +63,6 @@ def lambda_context(event, context):
             "Lambda Request ID": lambda_request_id,
             "Lambda function memory limits in MB": lambda_memory_limits,
             "Lambda time remaining in MS": lambda_remaining_time_in_ms,
-            "Lambda time remaining in Sec": lambda_remaining_time_in_sec,
-            "Lambda time remaining in Min": lambda_remaining_time_in_min
+            "Lambda time remaining in Sec": lambda_remaining_time_in_sec
         }),
     }
