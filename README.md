@@ -129,16 +129,31 @@ See the [AWS SAM developer guide](https://docs.aws.amazon.com/serverless-applica
 
 Next, you can use AWS Serverless Application Repository to deploy ready to use Apps that go beyond hello world samples and learn how authors developed their applications: [AWS Serverless Application Repository main page](https://aws.amazon.com/serverless/serverlessrepo/)
 
+# SAM local test
+`sam build --use-container`
+`sam local invoke LambdaContextFunction`
+
 # Sam deploy
-## First time
+## First time  
 `sam deploy --guided` 
-## Update the code
+## Update the code  
 `sam build`
 `sam deploy --config-file samconfig.toml`
 
-# Destroy the whole environement
-
+# Destroy the whole environement  
 `aws cloudformation delete-stack --stack-name sam-hello-world`
+
+## Local dev & hot reload
+Install nodemon:
+`npm i -g nodemon`
+
+`sam build --use-container`  
+`sam local start-api`
+
+Then execute this in a new terminal  
+`nodemon --ext '*' --exec sam build`
+
+—-ext '*' stands for any file extention that will be updated
 
 ## Resource created
 
@@ -146,3 +161,7 @@ CREATE_COMPLETE                      AWS::IAM::Role                       HelloW
 CREATE_COMPLETE                      AWS::Lambda::Function                HelloWorldFunction
 CREATE_COMPLETE                      AWS::ApiGateway::RestApi             ServerlessRestApi
 CREATE_COMPLETE                      AWS::ApiGateway::Deployment          ServerlessRestApiDeployment47fc2d5f9d
+
+## Endpoints:
+https://gitb2xdwz8.execute-api.eu-west-1.amazonaws.com/Prod/hello/  
+https://gitb2xdwz8.execute-api.eu-west-1.amazonaws.com/Prod/context/
