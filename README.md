@@ -129,6 +129,9 @@ See the [AWS SAM developer guide](https://docs.aws.amazon.com/serverless-applica
 
 Next, you can use AWS Serverless Application Repository to deploy ready to use Apps that go beyond hello world samples and learn how authors developed their applications: [AWS Serverless Application Repository main page](https://aws.amazon.com/serverless/serverlessrepo/)
 
+# Enable Python 3.8 locally in your shell terminal
+`echo 'export PATH="/usr/local/opt/python@3.8/bin:$PATH"' >> ~/.zshrc`
+
 # SAM local test
 `sam build --use-container`  
 `sam local invoke LambdaContextFunction`

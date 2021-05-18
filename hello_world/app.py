@@ -1,48 +1,24 @@
 import json
-import time
 
 # import requests
 
-
-def lambda_handler(event, context):
-    """Sample pure Lambda function
-
-    Parameters
-    ----------
-    event: dict, required
-        API Gateway Lambda Proxy Input Format
-
-        Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
-
-    context: object, required
-        Lambda Context runtime methods and attributes
-
-        Context doc: https://docs.aws.amazon.com/lambda/latest/dg/python-context-object.html
-
-    Returns
-    ------
-    API Gateway Lambda Proxy Output Format: dict
-
-        Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
-    """
-
-    # try:
-    #     ip = requests.get("http://checkip.amazonaws.com/")
-    # except requests.RequestException as e:
-    #     # Send some context about this error to Lambda Logs
-    #     print(e)
-
-    #     raise e
-
+def respond(err, res=None):
     return {
-        "statusCode": 200,
-        "body": json.dumps({
-            "message": "Hello! First Lambda function with SAM.",
-            # "location": ip.text.replace("\n", "")
-        }),
+        'statusCode': '400' if err else '200',
+        'body': err.message if err else json.dumps(res),
+        'headers': {
+            'Content-Type': 'application/json',
+        },
     }
 
 
+def lambda_handler(event, context):
+    return respond(None, {
+            "message": "Hello! First Lambda function with SAM.",
+            # "location": ip.text.replace("\n", "")
+        })
+
+# https://docs.aws.amazon.com/lambda/latest/dg/python-context.html
 def lambda_context(event, context):
     # get context info
     context_arn = context.invoked_function_arn
@@ -54,9 +30,7 @@ def lambda_context(event, context):
     lambda_remaining_time_in_sec = round(
         (lambda_remaining_time_in_ms / 1000), 2)
 
-    return {
-        "statusCode": 200,
-        "body": json.dumps({
+    return respond(None, {
             "Lambda function ARN": context_arn,
             "CloudWatch log stream name": cloudwatch_log_stream_name,
             "CloudWatch log group name": cloudwatch_log_group_name,
@@ -64,5 +38,4 @@ def lambda_context(event, context):
             "Lambda function memory limits in MB": lambda_memory_limits,
             "Lambda time remaining in MS": lambda_remaining_time_in_ms,
             "Lambda time remaining in Sec": lambda_remaining_time_in_sec
-        }),
-    }
+        })
