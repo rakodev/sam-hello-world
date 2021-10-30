@@ -132,11 +132,38 @@ Next, you can use AWS Serverless Application Repository to deploy ready to use A
 # Enable Python 3.8 locally in your shell terminal
 `echo 'export PATH="/usr/local/opt/python@3.8/bin:$PATH"' >> ~/.zshrc`
 
-# SAM local test
-`sam build --use-container`  
-`sam local invoke LambdaContextFunction`
+# Local dev & hot reload
+Install nodemon:  
+`npm i -g nodemon`  
+Create a Docker local network  
+`docker network create lambda-local`  
+Run DynamoDB locally  
+`docker run -p 8000:8000 --network lambda-local --name DynamoDBLocal amazon/dynamodb-local -jar DynamoDBLocal.jar -sharedDb`  
+Create a DynamoDB Table  
+`aws dynamodb create-table --cli-input-json file://local-env/dynamodb-table-definition.json --endpoint-url http://localhost:8000`  
+or  
+`aws dynamodb create-table --table-name my-lambda-table --attribute-definitions AttributeName=id,AttributeType=S --key-schema AttributeName=id,KeyType=HASH --provisioned-throughput ReadCapacityUnits=2,WriteCapacityUnits=2 --endpoint-url=http://localhost:8000`  
 
-# Sam deploy
+Add item to DynamoDB  
+`aws dynamodb put-item --table-name my-lambda-table --item '{ "id": {"S": "1"}, "FirstName": {"S": "Bill"}, "LastName": {"S": "Smith"} }' --return-consumed-capacity TOTAL --endpoint-url http://localhost:8000`  
+
+Build your application  
+`sam build --use-container --docker-network lambda-local`  
+or (local dev ongoing)  
+`nodemon --ext '*' --exec sam build --use-container --docker-network lambda-local`  
+—-ext '*' stands for any file extention that will be updated  
+
+Then  
+`sam local start-api --docker-network lambda-local`
+
+#### You can list local DynamoDB Tables like this:
+`aws dynamodb list-tables --endpoint-url http://localhost:8000`  
+#### List items from a table  
+`aws dynamodb scan --table-name my-lambda-table --endpoint-url http://localhost:8000`  
+#### Remove a DynamoDB table
+`aws dynamodb delete-table --table-name my-lambda-table --endpoint-url http://localhost:8000`
+
+# Sam deploy to AWS
 ## First time  
 `sam deploy --guided` 
 ## Update the code  
@@ -146,21 +173,13 @@ Next, you can use AWS Serverless Application Repository to deploy ready to use A
 # Destroy the whole environement  
 `aws cloudformation delete-stack --stack-name sam-hello-world`
 
-## Local dev & hot reload
-Install nodemon:
-`npm i -g nodemon`
-
-`sam build --use-container`  
-`sam local start-api`
-
-Then execute this in a new terminal  
-`nodemon --ext '*' --exec sam build`
-
-—-ext '*' stands for any file extention that will be updated
-
 ## Resource created
 
 CREATE_COMPLETE                      AWS::IAM::Role                       HelloWorldFunctionRole  
 CREATE_COMPLETE                      AWS::Lambda::Function                HelloWorldFunction  
 CREATE_COMPLETE                      AWS::ApiGateway::RestApi             ServerlessRestApi  
 CREATE_COMPLETE                      AWS::ApiGateway::Deployment          ServerlessRestApiDeployment47fc2d5f9d  
+
+# Resources
+- AWS SAM CLI command reference  
+https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-command-reference.html  

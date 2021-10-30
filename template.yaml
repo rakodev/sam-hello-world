@@ -35,6 +35,82 @@ Resources:
           Properties:
             Path: /context
             Method: get
+  CreateTable:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: hello_world/
+      Handler: app.ddb_create_table
+      Runtime: python3.8
+      Environment:
+        Variables:
+          # TABLE_NAME: !Ref: Table
+          TABLE_NAME: 'my-lambda-table'
+          REGION_NAME: !Ref AWS::Region
+          DYNAMODB_ENDPOINT: 'http://DynamoDBLocal:8000'
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /ddb-create-table
+            Method: get
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Table
+  InsertItem:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: hello_world/
+      Handler: app.ddb_insert_item
+      Runtime: python3.8
+      Environment:
+        Variables:
+          # TABLE_NAME: !Ref: Table
+          TABLE_NAME: 'my-lambda-table'
+          REGION_NAME: !Ref AWS::Region
+          DYNAMODB_ENDPOINT: 'http://DynamoDBLocal:8000'
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /ddb-insert-item
+            Method: get
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Table
+  GetItem:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: hello_world/
+      Handler: app.ddb_get_item
+      Runtime: python3.8
+      Environment:
+        Variables:
+          # TABLE_NAME: !Ref: Table
+          TABLE_NAME: 'my-lambda-table'
+          REGION_NAME: !Ref AWS::Region
+          DYNAMODB_ENDPOINT: 'http://DynamoDBLocal:8000'
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /ddb-get-item
+            Method: get
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Table
+
+  Table:
+    # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-simpletable.html
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: my-lambda-table
+      PrimaryKey:
+        # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-simpletable-primarykeyobject.html
+        Name: id
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
@@ -51,4 +127,13 @@ Outputs:
     Value: !GetAtt HelloWorldFunctionRole.Arn
   LambdaContext:
     Description: "Get current context"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/context/" 
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/context/"
+  CreateTable:
+    Description: "DynamoDB Creat Table"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/ddb-create-table/"
+  InsertItem:
+    Description: "DynamoDB Insert item"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/ddb-insert-item/"
+  InsertItem:
+    Description: "DynamoDB Get item"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/ddb-get-item/"
